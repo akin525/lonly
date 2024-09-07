@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Laravel Paystack package.
+ * This file is part of the Laravel Budpay package.
  *
  * (c) Prosper Otemuyiwa <prosperotemuyiwa@gmail.com>
  *
@@ -9,22 +9,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Unicodeveloper\Paystack\Test;
+namespace lonly\Budpay\Test;
 
 use Mockery as m;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
-use Unicodeveloper\Paystack\Paystack;
+use lonly\budpay\Budpay;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Facade as Facade;
 
-class PaystackTest extends TestCase
+class budpayTest extends TestCase
 {
-    protected $paystack;
+    protected $budpay;
 
     public function setUp(): void
     {
-        $this->paystack = m::mock('Unicodeveloper\Paystack\Paystack');
+        $this->budpay = m::mock('lonly\Budpay\Budpay');
         $this->mock = m::mock('GuzzleHttp\Client');
     }
 
@@ -35,21 +35,21 @@ class PaystackTest extends TestCase
 
     public function testAllCustomersAreReturned()
     {
-        $array = $this->paystack->shouldReceive('getAllCustomers')->andReturn(['prosper']);
+        $array = $this->budpay->shouldReceive('getAllCustomers')->andReturn(['prosper']);
 
         $this->assertEquals('array', gettype(array($array)));
     }
 
     public function testAllTransactionsAreReturned()
     {
-        $array = $this->paystack->shouldReceive('getAllTransactions')->andReturn(['transactions']);
+        $array = $this->budpay->shouldReceive('getAllTransactions')->andReturn(['transactions']);
 
         $this->assertEquals('array', gettype(array($array)));
     }
 
     public function testAllPlansAreReturned()
     {
-        $array = $this->paystack->shouldReceive('getAllPlans')->andReturn(['intermediate-plan']);
+        $array = $this->budpay->shouldReceive('getAllPlans')->andReturn(['intermediate-plan']);
 
         $this->assertEquals('array', gettype(array($array)));
     }

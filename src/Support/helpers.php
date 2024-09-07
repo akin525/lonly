@@ -1,9 +1,9 @@
 <?php
 
-if (! function_exists("paystack"))
+if (! function_exists("budpay"))
 {
-    function paystack() {
+    function budpay() {
 
-        return app()->make('laravel-paystack');
+        return app()->make('laravel-budpay');
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Laravel Paystack package.
+ * This file is part of the Laravel Budpay package.
  *
  * (c) Prosper Otemuyiwa <prosperotemuyiwa@gmail.com>
  *
@@ -9,18 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Unicodeveloper\Paystack\Facades;
+namespace lonly\Budpay\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Paystack extends Facade
+class Budpay extends Facade
 {
     /**
-     * Get the registered name of the component
+     * Get the registered name of the component.
+     *
      * @return string
      */
     protected static function getFacadeAccessor()
     {
-        return 'laravel-paystack';
+        return 'laravel-budpay';
     }
 }

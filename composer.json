@@ -1,6 +1,6 @@
 {
-    "name": "unicodeveloper/laravel-paystack",
-    "description": "A Laravel Package for Paystack",
+    "name": "lonly/laravel-budpay",
+    "description": "A Laravel Package for Budpay",
     "keywords": [
         "php",
         "github",
@@ -8,8 +8,8 @@
         "Open Source",
         "payments",
         "subscription",
-        "paystack",
-        "paystack.co",
+        "budpay",
+        "budpay.com/ng",
         "laravel 6",
         "laravel 7",
         "laravel 8"
@@ -17,7 +17,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "unicodeveloper",
+            "name": "lonly",
             "email": "prosperotemuyiwa@gmail.com"
         },
         {
@@ -42,12 +42,12 @@
             "src/Support/helpers.php"
         ],
         "psr-4": {
-            "Unicodeveloper\\Paystack\\": "src/"
+            "lonly\\Budpay\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Unicodeveloper\\Paystack\\Test\\": "tests"
+            "lonly\\Budpay\\Test\\": "tests"
         }
     },
     "scripts": {
@@ -56,10 +56,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Unicodeveloper\\Paystack\\PaystackServiceProvider"
+                "lonly\\Budpay\\BudpayServiceProvider"
             ],
             "aliases": {
-                "Paystack": "Unicodeveloper\\Paystack\\Facades\\Paystack"
+                "Budpay": "lonly\\Budpay\\Facades\\Budpay"
             }
         }
     }

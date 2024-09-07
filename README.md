@@ -1,53 +1,53 @@
-# laravel-paystack
+# laravel-Budpay
 
-[![Latest Stable Version](https://poser.pugx.org/unicodeveloper/laravel-paystack/v/stable.svg)](https://packagist.org/packages/unicodeveloper/laravel-paystack)
-[![License](https://poser.pugx.org/unicodeveloper/laravel-paystack/license.svg)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/unicodeveloper/laravel-paystack.svg)](https://travis-ci.org/unicodeveloper/laravel-paystack)
-[![Quality Score](https://img.shields.io/scrutinizer/g/unicodeveloper/laravel-paystack.svg?style=flat-square)](https://scrutinizer-ci.com/g/unicodeveloper/laravel-paystack)
-[![Total Downloads](https://img.shields.io/packagist/dt/unicodeveloper/laravel-paystack.svg?style=flat-square)](https://packagist.org/packages/unicodeveloper/laravel-paystack)
+[![Latest Stable Version](https://poser.pugx.org/lonly/laravel-Budpay/v/stable.svg)](https://packagist.org/packages/lonly/laravel-Budpay)
+[![License](https://poser.pugx.org/lonly/laravel-Budpay/license.svg)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/lonly/laravel-Budpay.svg)](https://travis-ci.org/lonly/laravel-Budpay)
+[![Quality Score](https://img.shields.io/scrutinizer/g/lonly/laravel-Budpay.svg?style=flat-square)](https://scrutinizer-ci.com/g/lonly/laravel-Budpay)
+[![Total Downloads](https://img.shields.io/packagist/dt/lonly/laravel-Budpay.svg?style=flat-square)](https://packagist.org/packages/lonly/laravel-Budpay)
 
-> A Laravel Package for working with Paystack seamlessly
+> A Laravel Package for working with Budpay seamlessly
 
 ## Installation
 
 [PHP](https://php.net) 5.4+ or [HHVM](http://hhvm.com) 3.3+, and [Composer](https://getcomposer.org) are required.
 
-To get the latest version of Laravel Paystack, simply require it
+To get the latest version of Laravel Budpay, simply require it
 
 ```bash
-composer require unicodeveloper/laravel-paystack
+composer require lonly/laravel-Budpay
 ```
 
 Or add the following line to the require block of your `composer.json` file.
 
 ```
-"unicodeveloper/laravel-paystack": "1.0.*"
+"lonly/laravel-Budpay": "1.0.*"
 ```
 
 You'll then need to run `composer install` or `composer update` to download it and have the autoloader updated.
 
 
 
-Once Laravel Paystack is installed, you need to register the service provider. Open up `config/app.php` and add the following to the `providers` key.
+Once Laravel Budpay is installed, you need to register the service provider. Open up `config/app.php` and add the following to the `providers` key.
 
 ```php
 'providers' => [
     ...
-    Unicodeveloper\Paystack\PaystackServiceProvider::class,
+    lonly\Budpay\BudpayServiceProvider::class,
     ...
 ]
 ```
 
-> If you use **Laravel >= 5.5** you can skip this step and go to [**`configuration`**](https://github.com/unicodeveloper/laravel-paystack#configuration)
+> If you use **Laravel >= 5.5** you can skip this step and go to [**`configuration`**](https://github.com/lonly/laravel-Budpay#configuration)
 
-* `Unicodeveloper\Paystack\PaystackServiceProvider::class`
+* `lonly\Budpay\BudpayServiceProvider::class`
 
 Also, register the Facade like so:
 
 ```php
 'aliases' => [
     ...
-    'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
+    'Budpay' => lonly\Budpay\Facades\Budpay::class,
     ...
 ]
 ```
@@ -57,10 +57,10 @@ Also, register the Facade like so:
 You can publish the configuration file using this command:
 
 ```bash
-php artisan vendor:publish --provider="Unicodeveloper\Paystack\PaystackServiceProvider"
+php artisan vendor:publish --provider="lonly\Budpay\BudpayServiceProvider"
 ```
 
-A configuration-file named `paystack.php` with some sensible defaults will be placed in your `config` directory:
+A configuration-file named `Budpay.php` with some sensible defaults will be placed in your `config` directory:
 
 ```php
 <?php
@@ -68,22 +68,22 @@ A configuration-file named `paystack.php` with some sensible defaults will be pl
 return [
 
     /**
-     * Public Key From Paystack Dashboard
+     * Public Key From Budpay Dashboard
      *
      */
-    'publicKey' => getenv('PAYSTACK_PUBLIC_KEY'),
+    'publicKey' => getenv('Budpay_PUBLIC_KEY'),
 
     /**
-     * Secret Key From Paystack Dashboard
+     * Secret Key From Budpay Dashboard
      *
      */
-    'secretKey' => getenv('PAYSTACK_SECRET_KEY'),
+    'secretKey' => getenv('Budpay_SECRET_KEY'),
 
     /**
-     * Paystack Payment URL
+     * Budpay Payment URL
      *
      */
-    'paymentUrl' => getenv('PAYSTACK_PAYMENT_URL'),
+    'paymentUrl' => getenv('Budpay_PAYMENT_URL'),
 
     /**
      * Optional email address of the merchant
@@ -121,16 +121,16 @@ The hash is calculated out of some of the fields returned and a secret non-publi
 Open your .env file and add your public key, secret key, merchant email and payment url like so:
 
 ```php
-PAYSTACK_PUBLIC_KEY=xxxxxxxxxxxxx
-PAYSTACK_SECRET_KEY=xxxxxxxxxxxxx
-PAYSTACK_PAYMENT_URL=https://api.paystack.co
-MERCHANT_EMAIL=unicodeveloper@gmail.com
+Budpay_PUBLIC_KEY=xxxxxxxxxxxxx
+Budpay_SECRET_KEY=xxxxxxxxxxxxx
+Budpay_PAYMENT_URL=https://api.Budpay.co
+MERCHANT_EMAIL=lonly@gmail.com
 ```
 *If you are using a hosting service like heroku, ensure to add the above details to your configuration variables.*
 
 Set up routes and controller methods like so:
 
-Note: Make sure you have `/payment/callback` registered in Paystack Dashboard [https://dashboard.paystack.co/#/settings/developer](https://dashboard.paystack.co/#/settings/developer) like so:
+Note: Make sure you have `/payment/callback` registered in Budpay Dashboard [https://dashboard.Budpay.co/#/settings/developer](https://dashboard.Budpay.co/#/settings/developer) like so:
 
 ![payment-callback](https://cloud.githubusercontent.com/assets/2946769/12746754/9bd383fc-c9a0-11e5-94f1-64433fc6a965.png)
 
@@ -185,31 +185,31 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
-use Paystack;
+use Budpay;
 
 class PaymentController extends Controller
 {
 
     /**
-     * Redirect the User to Paystack Payment Page
+     * Redirect the User to Budpay Payment Page
      * @return Url
      */
     public function redirectToGateway()
     {
         try{
-            return Paystack::getAuthorizationUrl()->redirectNow();
+            return Budpay::getAuthorizationUrl()->redirectNow();
         }catch(\Exception $e) {
-            return Redirect::back()->withMessage(['msg'=>'The paystack token has expired. Please refresh the page and try again.', 'type'=>'error']);
+            return Redirect::back()->withMessage(['msg'=>'The Budpay token has expired. Please refresh the page and try again.', 'type'=>'error']);
         }        
     }
 
     /**
-     * Obtain Paystack payment information
+     * Obtain Budpay payment information
      * @return void
      */
     public function handleGatewayCallback()
     {
-        $paymentDetails = Paystack::getPaymentData();
+        $paymentDetails = Budpay::getPaymentData();
 
         dd($paymentDetails);
         // Now you have the payment details,
@@ -237,7 +237,7 @@ $data = array(
         "orderID" => 23456,
     );
 
-return Paystack::getAuthorizationUrl($data)->redirectNow();
+return Budpay::getAuthorizationUrl($data)->redirectNow();
 
 ```
 
@@ -245,130 +245,130 @@ Let me explain the fluent methods this package provides a bit here.
 ```php
 /**
  *  This fluent method does all the dirty work of sending a POST request with the form data
- *  to Paystack Api, then it gets the authorization Url and redirects the user to Paystack
+ *  to Budpay Api, then it gets the authorization Url and redirects the user to Budpay
  *  Payment Page. We've abstracted all of it, so you don't have to worry about that.
  *  Just eat your cookies while coding!
  */
-Paystack::getAuthorizationUrl()->redirectNow();
+Budpay::getAuthorizationUrl()->redirectNow();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->getAuthorizationUrl()->redirectNow();
+Budpay()->getAuthorizationUrl()->redirectNow();
 
 /**
  * This fluent method does all the dirty work of verifying that the just concluded transaction was actually valid,
- * It verifies the transaction reference with Paystack Api and then grabs the data returned from Paystack.
+ * It verifies the transaction reference with Budpay Api and then grabs the data returned from Budpay.
  * In that data, we have a lot of good stuff, especially the `authorization_code` that you can save in your db
  * to allow for easy recurrent subscription.
  */
-Paystack::getPaymentData();
+Budpay::getPaymentData();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->getPaymentData();
+Budpay()->getPaymentData();
 
 /**
- * This method gets all the customers that have performed transactions on your platform with Paystack
+ * This method gets all the customers that have performed transactions on your platform with Budpay
  * @returns array
  */
-Paystack::getAllCustomers();
+Budpay::getAllCustomers();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->getAllCustomers();
+Budpay()->getAllCustomers();
 
 
 /**
- * This method gets all the plans that you have registered on Paystack
+ * This method gets all the plans that you have registered on Budpay
  * @returns array
  */
-Paystack::getAllPlans();
+Budpay::getAllPlans();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->getAllPlans();
+Budpay()->getAllPlans();
 
 
 /**
  * This method gets all the transactions that have occurred
  * @returns array
  */
-Paystack::getAllTransactions();
+Budpay::getAllTransactions();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->getAllTransactions();
+Budpay()->getAllTransactions();
 
 /**
  * This method generates a unique super secure cryptographic hash token to use as transaction reference
  * @returns string
  */
-Paystack::genTranxRef();
+Budpay::genTranxRef();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->genTranxRef();
+Budpay()->genTranxRef();
 
 
 /**
 * This method creates a subaccount to be used for split payments
 * @return array
 */
-Paystack::createSubAccount();
+Budpay::createSubAccount();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->createSubAccount();
+Budpay()->createSubAccount();
 
 
 /**
 * This method fetches the details of a subaccount
 * @return array
 */
-Paystack::fetchSubAccount();
+Budpay::fetchSubAccount();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->fetchSubAccount();
+Budpay()->fetchSubAccount();
 
 
 /**
-* This method lists the subaccounts associated with your paystack account
+* This method lists the subaccounts associated with your Budpay account
 * @return array
 */
-Paystack::listSubAccounts();
+Budpay::listSubAccounts();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->listSubAccounts();
+Budpay()->listSubAccounts();
 
 
 /**
 * This method Updates a subaccount to be used for split payments
 * @return array
 */
-Paystack::updateSubAccount();
+Budpay::updateSubAccount();
 
 /**
  * Alternatively, use the helper.
  */
-paystack()->updateSubAccount();
+Budpay()->updateSubAccount();
 ```
 
 A sample form will look like so:
 
 ```php
 <?php
-// more details https://paystack.com/docs/payments/multi-split-payments/#dynamic-splits
+// more details https://Budpay.com/docs/payments/multi-split-payments/#dynamic-splits
 
 $split = [
    "type" => "percentage",
@@ -399,10 +399,10 @@ $split = [
             <input type="hidden" name="quantity" value="3">
             <input type="hidden" name="currency" value="NGN">
             <input type="hidden" name="metadata" value="{{ json_encode($array = ['key_name' => 'value',]) }}" > {{-- For other necessary things you want to add to your payload. it is optional though --}}
-            <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}
+            <input type="hidden" name="reference" value="{{ Budpay::genTranxRef() }}"> {{-- required --}}
             
-            <input type="hidden" name="split_code" value="SPL_EgunGUnBeCareful"> {{-- to support transaction split. more details https://paystack.com/docs/payments/multi-split-payments/#using-transaction-splits-with-payments --}}
-            <input type="hidden" name="split" value="{{ json_encode($split) }}"> {{-- to support dynamic transaction split. More details https://paystack.com/docs/payments/multi-split-payments/#dynamic-splits --}}
+            <input type="hidden" name="split_code" value="SPL_EgunGUnBeCareful"> {{-- to support transaction split. more details https://Budpay.com/docs/payments/multi-split-payments/#using-transaction-splits-with-payments --}}
+            <input type="hidden" name="split" value="{{ json_encode($split) }}"> {{-- to support dynamic transaction split. More details https://Budpay.com/docs/payments/multi-split-payments/#dynamic-splits --}}
             {{ csrf_field() }} {{-- works only when using laravel 5.1, 5.2 --}}
 
             <input type="hidden" name="_token" value="{{ csrf_token() }}"> {{-- employ this in place of csrf_field only in laravel 5.0 --}}
@@ -417,17 +417,17 @@ $split = [
 </form>
 ```
 
-When clicking the submit button the customer gets redirected to the Paystack site.
+When clicking the submit button the customer gets redirected to the Budpay site.
 
-So now we've redirected the customer to Paystack. The customer did some actions there (hopefully he or she paid the order) and now gets redirected back to our shop site.
+So now we've redirected the customer to Budpay. The customer did some actions there (hopefully he or she paid the order) and now gets redirected back to our shop site.
 
-Paystack will redirect the customer to the url of the route that is specified in the Callback URL of the Web Hooks section on Paystack dashboard.
+Budpay will redirect the customer to the url of the route that is specified in the Callback URL of the Web Hooks section on Budpay dashboard.
 
 We must validate if the redirect to our site is a valid request (we don't want imposters to wrongfully place non-paid order).
 
 In the controller that handles the request coming from the payment provider, we have
 
-`Paystack::getPaymentData()` - This function calls the verification methods and ensure it is a valid transaction else it throws an exception.
+`Budpay::getPaymentData()` - This function calls the verification methods and ensure it is a valid transaction else it throws an exception.
 
 You can test with these details
 
@@ -451,7 +451,7 @@ Please feel free to fork this package and contribute by submitting a pull reques
 
 Why not star the github repo? I'd love the attention! Why not share the link for this repository on Twitter or HackerNews? Spread the word!
 
-Don't forget to [follow me on twitter](https://twitter.com/unicodeveloper)!
+Don't forget to [follow me on twitter](https://twitter.com/lonly)!
 
 Thanks!
 Prosper Otemuyiwa.

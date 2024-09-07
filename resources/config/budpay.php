@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Laravel Paystack package.
+ * This file is part of the Laravel BUDPAY package.
  *
  * (c) Prosper Otemuyiwa <prosperotemuyiwa@gmail.com>
  *
@@ -12,22 +12,22 @@
 return [
 
     /**
-     * Public Key From Paystack Dashboard
+     * Public Key From BUDPAY Dashboard
      *
      */
-    'publicKey' => getenv('PAYSTACK_PUBLIC_KEY'),
+    'publicKey' => getenv('BUDPAY_PUBLIC_KEY'),
 
     /**
-     * Secret Key From Paystack Dashboard
+     * Secret Key From BUDPAY Dashboard
      *
      */
-    'secretKey' => getenv('PAYSTACK_SECRET_KEY'),
+    'secretKey' => getenv('BUDPAY_SECRET_KEY'),
 
     /**
-     * Paystack Payment URL
+     * BUDPAY Payment URL
      *
      */
-    'paymentUrl' => getenv('PAYSTACK_PAYMENT_URL'),
+    'paymentUrl' => getenv('BUDPAY_PAYMENT_URL'),
 
     /**
      * Optional email address of the merchant
@@ -35,4 +35,5 @@ return [
      */
     'merchantEmail' => getenv('MERCHANT_EMAIL'),
 
+    'signature_hmac' => env('BUDPAY_HMAC_SIGNATURE'),
 ];

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Laravel Paystack package.
+ * This file is part of the Laravel Budpay package.
  *
  * (c) Prosper Otemuyiwa <prosperotemuyiwa@gmail.com>
  *
@@ -9,15 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Unicodeveloper\Paystack;
+namespace lonly\Budpay;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
-use Unicodeveloper\Paystack\Exceptions\IsNullException;
-use Unicodeveloper\Paystack\Exceptions\PaymentVerificationFailedException;
+use lonly\Budpay\Exceptions\IsNullException;
+use lonly\Budpay\Exceptions\PaymentVerificationFailedException;
+use Illuminate\Support\Facades\Http;
 
-class Paystack
+
+class Budpay
 {
+    protected $secretKey;
+    protected $signatureHMACSHA512;
+
+
     /**
      * Transaction Verification Successful
      */
@@ -29,10 +35,10 @@ class Paystack
     const ITF = "Invalid transaction reference";
 
     /**
-     * Issue Secret Key from your Paystack Dashboard
+     * Issue Secret Key from your Budpay Dashboard
      * @var string
      */
-    protected $secretKey;
+
 
     /**
      * Instance of Client
@@ -41,44 +47,53 @@ class Paystack
     protected $client;
 
     /**
-     *  Response from requests made to Paystack
+     *  Response from requests made to Budpay
      * @var mixed
      */
     protected $response;
 
     /**
-     * Paystack API base Url
+     * Budpay API base Url
      * @var string
      */
     protected $baseUrl;
 
     /**
-     * Authorization Url - Paystack payment page
+     * Authorization Url - Budpay payment page
      * @var string
      */
     protected $authorizationUrl;
 
-    public function __construct()
+    public function __construct(BudpayService $budPay)
     {
+        // Set BudPay service
+        $this->budPay = $budPay;
+
+        // Set the secret key and HMAC signature from the configuration
+        $this->secretKey = config('budpay.secret_key');
+        $this->signatureHMACSHA512 = config('budpay.signature_hmac');
+
+        // Initialize other settings
         $this->setKey();
         $this->setBaseUrl();
         $this->setRequestOptions();
     }
 
+
     /**
-     * Get Base Url from Paystack config file
+     * Get Base Url from Budpay config file
      */
     public function setBaseUrl()
     {
-        $this->baseUrl = Config::get('paystack.paymentUrl');
+        $this->baseUrl = Config::get('budpay.paymentUrl');
     }
 
     /**
-     * Get secret key from Paystack config file
+     * Get secret key from Budpay config file
      */
     public function setKey()
     {
-        $this->secretKey = Config::get('paystack.secretKey');
+        $this->secretKey = Config::get('budpay.secretKey');
     }
 
     /**
@@ -102,11 +117,10 @@ class Paystack
 
 
     /**
-
-     * Initiate a payment request to Paystack
+ * Initiate a payment request to Budpay
      * Included the option to pass the payload to this method for situations
      * when the payload is built on the fly (not passed to the controller from a view)
-     * @return Paystack
+     * @return Budpay
      */
 
     public function makePaymentRequest($data = null)
@@ -127,7 +141,7 @@ class Paystack
                 "currency" => (request()->currency != ""  ? request()->currency : "NGN"),
 
                 /*
-                    Paystack allows for transactions to be split into a subaccount -
+                    Budpay allows for transactions to be split into a subaccount -
                     The following lines trap the subaccount ID - as well as the ammount to charge the subaccount (if overriden in the form)
                     both values need to be entered within hidden input fields
                 */
@@ -135,14 +149,14 @@ class Paystack
                 "transaction_charge" => request()->transaction_charge,
 
                 /**
-                 * Paystack allows for transaction to be split into multi accounts(subaccounts)
+                 * Budpay allows for transaction to be split into multi accounts(subaccounts)
                  * The following lines trap the split ID handling the split
-                 * More details here: https://paystack.com/docs/payments/multi-split-payments/#using-transaction-splits-with-payments
+                 * More details here: https://budpay.com/docs/payments/multi-split-payments/#using-transaction-splits-with-payments
                  */
                 "split_code" => request()->split_code,
 
                 /**
-                 * Paystack allows transaction to be split into multi account(subaccounts) on the fly without predefined split
+                 * Budpay allows transaction to be split into multi account(subaccounts) on the fly without predefined split
                  * form need an input field: <input type="hidden" name="split" value="{{ json_encode($split) }}" >
                  * array must be set up as:
                  *  $split = [
@@ -155,11 +169,11 @@ class Paystack
                  *     "bearer_type" => "all",
                  *     "main_account_share" => 70,
                  * ]
-                 * More details here: https://paystack.com/docs/payments/multi-split-payments/#dynamic-splits
+                 * More details here: https://budpay.com/docs/payments/multi-split-payments/#dynamic-splits
                  */
                 "split" => request()->split,
                 /*
-                * to allow use of metadata on Paystack dashboard and a means to return additional data back to redirect url
+                * to allow use of metadata on Budpay dashboard and a means to return additional data back to redirect url
                 * form need an input field: <input type="hidden" name="metadata" value="{{ json_encode($array) }}" >
                 * array must be set up as:
                 * $array = [ 'custom_fields' => [
@@ -185,7 +199,7 @@ class Paystack
      * @param string $relativeUrl
      * @param string $method
      * @param array $body
-     * @return Paystack
+     * @return Budpay
      * @throws IsNullException
      */
     private function setHttpResponse($relativeUrl, $method, $body = [])
@@ -204,13 +218,13 @@ class Paystack
 
     /**
      * Get the authorization url from the callback response
-     * @return Paystack
+     * @return Budpay
      */
     public function getAuthorizationUrl($data = null)
     {
         $this->makePaymentRequest($data);
 
-        $this->url = $this->getResponse()['data']['authorization_url'];
+        $this->url = $this->getResponse()['data']['payment_link'];
 
         return $this;
     }
@@ -221,68 +235,33 @@ class Paystack
      * and might need to take different actions based on the success or not of the transaction
      * @return array
      */
-    public function getAuthorizationResponse($data)
+
+    public function initializePayment(Request $request)
     {
-        $this->makePaymentRequest($data);
+        $amount = $request->input('amount');
+        $callbackUrl = route('payment.callback');
+        $customerName = $request->input('name');
+        $customerEmail = $request->input('email');
 
-        $this->url = $this->getResponse()['data']['authorization_url'];
+        $response = $this->budPay->processPayment($amount, $callbackUrl, $customerName, $customerEmail);
 
-        return $this->getResponse();
+        return response()->json($response);
     }
 
-    /**
-     * Hit Paystack Gateway to Verify that the transaction is valid
-     */
-    private function verifyTransactionAtGateway($transaction_id = null)
+    public function createPaymentLink(Request $request)
     {
-        $transactionRef = $transaction_id ?? request()->query('trxref');
+        $amount = $request->input('amount');
+        $currency = 'NGN';
+        $name = $request->input('name');
+        $description = 'Payment for service';
+        $redirectUrl = route('payment.success');
 
-        $relativeUrl = "/transaction/verify/{$transactionRef}";
+        $response = $this->budPay->createBudPayPaymentLink($amount, $currency, $name, $description, $redirectUrl);
 
-        $this->response = $this->client->get($this->baseUrl . $relativeUrl, []);
+        return response()->json($response);
     }
-
     /**
-     * True or false condition whether the transaction is verified
-     * @return boolean
-     */
-    public function isTransactionVerificationValid($transaction_id = null)
-    {
-        $this->verifyTransactionAtGateway($transaction_id);
-
-        $result = $this->getResponse()['message'];
-
-        switch ($result) {
-            case self::VS:
-                $validate = true;
-                break;
-            case self::ITF:
-                $validate = false;
-                break;
-            default:
-                $validate = false;
-                break;
-        }
-
-        return $validate;
-    }
-
-    /**
-     * Get Payment details if the transaction was verified successfully
-     * @return json
-     * @throws PaymentVerificationFailedException
-     */
-    public function getPaymentData()
-    {
-        if ($this->isTransactionVerificationValid()) {
-            return $this->getResponse();
-        } else {
-            throw new PaymentVerificationFailedException("Invalid Transaction Reference");
-        }
-    }
-
-    /**
-     * Fluent method to redirect to Paystack Payment Page
+     * Fluent method to redirect to Budpay Payment Page
      */
     public function redirectNow()
     {
@@ -319,7 +298,7 @@ class Paystack
     }
 
     /**
-     * Get all the plans that you have on Paystack
+     * Get all the plans that you have on Budpay
      * @return array
      */
     public function getAllPlans()
@@ -494,7 +473,7 @@ class Paystack
     }
 
     /**
-     * Get all the subscriptions made on Paystack.
+     * Get all the subscriptions made on Budpay.
      *
      * @return array
      */
@@ -725,5 +704,259 @@ class Paystack
 
         $this->setRequestOptions();
         return $this->setHttpResponse("/bank/resolve/?account_number=" . $account_number . "&bank_code=" . $bank_code, "GET")->getResponse();
+    }
+
+    public function bulkBankTransfer(array $transfers)
+    {
+        $url = 'https://api.budpay.com/api/v2/bulk_bank_transfer';
+
+        $data = [
+            'currency' => 'NGN',
+            'transfers' => $transfers,
+        ];
+
+        return $this->makeRequest('POST', $url, $data);
+    }
+
+    public function fetchPayoutStatus($reference)
+    {
+        $url = 'https://api.budpay.com/api/v2/payout/' . $reference;
+        return $this->makeRequest('GET', $url);
+    }
+
+    public function fetchWalletBalance($currency)
+    {
+        $url = 'https://api.budpay.com/api/v2/wallet_balance/' . $currency;
+        return $this->makeRequest('GET', $url);
+    }
+
+    public function singlePayout($data)
+    {
+        $url = 'https://api.budpay.com/api/v2/bank_transfer';
+        return $this->makeRequest('POST', $url, $data);
+    }
+
+    public function fetchBankList()
+    {
+        $url = 'https://api.budpay.com/api/v2/bank_list/NGN';
+        return $this->makeRequest('GET', $url);
+    }
+
+    protected function makeRequest($method, $url, $data = [])
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->secretKey,
+            'Encryption' => $this->signatureHMACSHA512,
+            'Content-Type' => 'application/json',
+        ])->$method($url, $data);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return $response->throw()->json();
+    }
+
+    public function getairtime()
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/airtime';
+
+        try {
+            // Make a GET request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Content-Type'  => 'application/json',
+            ])->get($apiUrl);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+    public function topupairtime($bankCode, $accountNumber)
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/account_name_verify';
+
+        // Data to send in the POST request
+        $postData = [
+            'bank_code'      => $bankCode,
+            'account_number' => $accountNumber,
+        ];
+
+        try {
+            // Make a POST request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Content-Type'  => 'application/json',
+            ])->post($apiUrl, $postData);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    public function getinternet()
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/internet';
+
+        try {
+            // Make a GET request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Content-Type'  => 'application/json',
+            ])->get($apiUrl);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+    public function getinternetplan($provider)
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/internet/plans/' . urlencode($provider);
+
+        try {
+            // Make a GET request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Content-Type'  => 'application/json',
+            ])->get($apiUrl);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    public function buyinternet ($provider, $number, $planId, $reference,)
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/account_name_verify';
+
+        // Data to send in the POST request
+        $postData = [
+            'provider' => $provider,
+            'number' => $number,
+            'plan_id' => $planId,
+            'reference' => $reference,
+        ];
+
+        try {
+            // Make a POST request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Content-Type'  => 'application/json',
+            ])->post($apiUrl, $postData);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    public function bankList()
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/bank_list/NGN';
+
+        try {
+            // Make a GET request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Content-Type'  => 'application/json',
+            ])->get($apiUrl);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Validate account number using BudPay API
+     *
+     * @param string $bankCode
+     * @param string $accountNumber
+     * @return array|string
+     */
+    public function validateAccountNumber($provider, $number, $amount, $reference,)
+    {
+        // BudPay API endpoint
+        $apiUrl = 'https://api.budpay.com/api/v2/account_name_verify';
+
+        // Data to send in the POST request
+        $postData = [
+            'provider'      => $provider,
+            'number' => $number,
+            'amount' => $amount,
+            'reference' => $reference,
+        ];
+
+        try {
+            // Make a POST request using Laravel's HTTP client
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Encryption: ' . $this->signatureHMACSHA512,
+                'Content-Type'  => 'application/json',
+            ])->post($apiUrl, $postData);
+
+            // Check if the request was successful
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            // Return error message if the request fails
+            return 'Error: ' . $response->body();
+        } catch (\Exception $e) {
+            // Return exception message if something goes wrong
+            return 'Error: ' . $e->getMessage();
+        }
     }
 }

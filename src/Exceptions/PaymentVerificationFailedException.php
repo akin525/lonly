@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Laravel Paystack package.
+ * This file is part of the Laravel Budpay package.
  *
  * (c) Prosper Otemuyiwa <prosperotemuyiwa@gmail.com>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Unicodeveloper\Paystack\Exceptions;
+namespace lonly\Budpay\Exceptions;
 
 use Exception;
 
